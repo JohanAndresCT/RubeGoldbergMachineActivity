@@ -77,6 +77,7 @@ public class RubeGoldbergMachine : MonoBehaviour
 
         marble = MakeSphere("Starter marble", new Vector3(0f, 0.7f, 0f), 0.7f,
             colors[0], true, true).GetComponent<Rigidbody>();
+        marble.tag = "Player";
         marble.isKinematic = true;
         marble.mass = 1f;
         marble.drag = 0.03f;
@@ -87,7 +88,7 @@ public class RubeGoldbergMachine : MonoBehaviour
             float x = 4f + i * 4.8f;
             MakeCube("Station " + (i + 1) + " marker", new Vector3(x, 2.9f, 0f),
                 new Vector3(0.55f, 0.55f, 0.55f), colors[i]);
-            BuildStation(i, x, lowFriction, bounce);
+            BuildStation(i, x, bounce);
             MakeCheckpoint(i, x + 1.6f);
         }
 
@@ -111,13 +112,13 @@ public class RubeGoldbergMachine : MonoBehaviour
         camera.backgroundColor = new Color(0.12f, 0.16f, 0.22f);
     }
 
-    private void BuildStation(int index, float x, PhysicsMaterial lowFriction, PhysicsMaterial bounce)
+    private void BuildStation(int index, float x, PhysicsMaterial bounce)
     {
         switch (index)
         {
             case 0:
             case 10:
-                MakeRamp(x, 0.75f, 2.6f, 0.15f, colors[index]);
+                MakeRamp(x, 0.75f, 2.6f, -0.15f, colors[index]);
                 break;
             case 1:
             case 6:
@@ -202,7 +203,7 @@ public class RubeGoldbergMachine : MonoBehaviour
             new Vector3(0.4f, 1.5f, 2.5f), colors[11]);
         Collider trigger = goal.GetComponent<Collider>();
         trigger.isTrigger = true;
-        goal.AddComponent<FinishRelay>().machine = this;
+        goal.AddComponent<RubeGoldbergTrigger>().Initialize(this, -1);
     }
 
     private void MakeCheckpoint(int index, float x)
@@ -213,9 +214,7 @@ public class RubeGoldbergMachine : MonoBehaviour
         BoxCollider trigger = checkpoint.AddComponent<BoxCollider>();
         trigger.isTrigger = true;
         trigger.size = new Vector3(0.5f, 2.5f, 3f);
-        StationRelay relay = checkpoint.AddComponent<StationRelay>();
-        relay.machine = this;
-        relay.station = index;
+        checkpoint.AddComponent<RubeGoldbergTrigger>().Initialize(this, index);
     }
 
     private void MakeRamp(float x, float y, float length, float angle, Color color)
@@ -284,12 +283,14 @@ public class RubeGoldbergMachine : MonoBehaviour
         Shader shader = Shader.Find("Standard");
         if (shader == null)
             shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null)
+            shader = Shader.Find("Sprites/Default");
         Material material = new Material(shader);
         material.color = color;
         return material;
     }
 
-    private void OnStationReached(int station)
+    public void ReachStation(int station)
     {
         if (station <= currentStation || finished)
             return;
@@ -299,7 +300,7 @@ public class RubeGoldbergMachine : MonoBehaviour
             marble.AddForce(Vector3.right * 2f, ForceMode.Impulse);
     }
 
-    private void OnFinish()
+    public void CompleteMachine()
     {
         finished = true;
         currentStation = StationCount - 1;
@@ -315,26 +316,4 @@ public class RubeGoldbergMachine : MonoBehaviour
         GUI.Box(new Rect(12f, 66f, 250f, 30f), "12 physics interactions • spheres + cubes");
     }
 
-    private class StationRelay : MonoBehaviour
-    {
-        public RubeGoldbergMachine machine;
-        public int station;
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player"))
-                machine.OnStationReached(station);
-        }
-    }
-
-    private class FinishRelay : MonoBehaviour
-    {
-        public RubeGoldbergMachine machine;
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player"))
-                machine.OnFinish();
-        }
-    }
 }
