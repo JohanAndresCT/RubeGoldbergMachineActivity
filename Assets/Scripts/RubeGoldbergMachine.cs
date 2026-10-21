@@ -80,7 +80,7 @@ public class RubeGoldbergMachine : MonoBehaviour
         marble.tag = "Player";
         marble.isKinematic = true;
         marble.mass = 1f;
-        marble.drag = 0.03f;
+        marble.linearDamping = 0.03f;
         marble.GetComponent<Collider>().material = lowFriction;
 
         for (int i = 0; i < StationCount; i++)
