@@ -11,3 +11,10 @@ A Unity physics activity with 12 colorful interactions built from primitive sphe
 The script builds the runway, camera, lighting, materials, physics objects, and interaction progress display when the component starts. The 12 stations use Rigidbody physics, colliders, and hinge joints; checkpoint triggers keep the marble moving through the full demonstration.
 
 Built for the Video Game Development course at Universidad del Valle, under Professor Gisler Garcés.
+
+## Acknowledgments
+
+These 3D models were used in this project, all from Sketchfab:
+
+- **"Dio the Dinosaur (Scary Monsters)"** by [annzep](https://sketchfab.com/annzep)
+- **"3D Model Menacing ゴ Symbol - Jojo"** by [adamw1806](https://sketchfab.com/adamw1806)
